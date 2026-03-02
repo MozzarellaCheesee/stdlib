@@ -8,13 +8,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(stdlib INTERFACE)
 
-target_include_directories(stdlib
-        INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}      # чтобы работало #include "stdlib/vector.hpp"
-)
+target_include_directories(stdlib INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_sources(stdlib
         INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/vector.h
         ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/vector.tpp
 )
+
+add_executable(vector_test ./tests/vector.cpp)
+target_link_libraries(vector_test PRIVATE stdlib)

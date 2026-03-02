@@ -4,41 +4,36 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <limits>
 
 namespace mystd {
 
+    template<typename T>
+    Vector<T>::Vector() noexcept : size_(0), capacity_(0) {}
+
     // ─── Конструкторы ───────────────────────────────────────────
     template<typename T>
-    Vector<T>::Vector(std::initializer_list<T> list) {
-        size_ = list.size();
-        capacity_ = size_;
-        data_ = new T[capacity_];
-        std::copy(list.begin(), list.end(), data_);
+    Vector<T>::Vector(std::initializer_list<T> list) 
+        : size_(list.size()), capacity_(size_) {
+        data_ = std::make_unique<T[]>(capacity_);
+        std::copy(list.begin(), list.end(), data_.get());
     }
 
     template<typename T>
     template<typename InputIt>
     Vector<T>::Vector(InputIt first, InputIt last) {
-        const std::size_t size = static_cast<std::size_t>(std::distance(first, last));
-        if (size == 0) {
-            data_.reset();
-            size_ = capacity_ = 0;
-            return;
-        }
-
-        std::unique_ptr<T[]> temp(new T[size]);
-
-        std::copy(first, last, temp.get());
-        data_ = std::move(temp);
-        size_ = capacity_ = size;
+        size_ = static_cast<size_t>(std::distance(first, last));
+        if (size_ == 0) return;
+        capacity_ = size_;
+        data_ = std::make_unique<T[]>(capacity_);
+        std::copy(first, last, data_.get());
     }
 
     template<typename T>
-    Vector<T>::Vector(std::size_t n, const T& val) {
-        size_ = n;
-        capacity_ = n;
-        data_ = new T[capacity_];
-        std::fill(data_, data_ + size_, val);
+    Vector<T>::Vector(size_t n, const T& val) 
+        : size_(n), capacity_(n) {
+        data_ = std::make_unique<T[]>(capacity_);
+        std::fill(data_.get(), data_.get() + size_, val);
     }
 
 
@@ -53,11 +48,10 @@ namespace mystd {
     }
 
     template<typename T>
-    Vector<T>::Vector(const Vector& other) noexcept 
-        :  size_(other.size_)
-        , capacity_(other.capacity_)
-        , data_(std::make_unique<T[]>(other.capacity_)) {
-        std::copy(other.data_.get(), other.data_.get() + size_, data_.get());
+    Vector<T>::Vector(const Vector& other)
+        : size_(other.size_), capacity_(other.capacity_) {
+        data_ = std::make_unique<T[]>(capacity_);
+        std::copy(other.data_.get(), other.data_.get() + other.size_, data_.get());
     }
 
     template<typename T>
@@ -206,11 +200,10 @@ namespace mystd {
     template<typename T>
     void Vector<T>::push_back(const T& value) {
         if (size_ == capacity_) {
-            std::size_t new_capacity = capacity_ == 0 ? 1 : static_cast<std::size_t>(capacity_ * 1.5);
-            reallocate(new_capacity);
+            size_t new_cap = capacity_ == 0 ? 1 : capacity_ * 3 / 2;
+            reallocate(new_cap);
         }
-        
-        data_[size_ + 1] = value;
+        new (data_.get() + size_) T(value);  // Placement new
         ++size_;
     }
 
@@ -248,12 +241,12 @@ namespace mystd {
 
     template<typename T>
     T* Vector<T>::begin() noexcept {
-        return data_;
+        return data_.get();
     }
 
     template<typename T>
     T* Vector<T>::end() noexcept {
-        return data_ + size_;
+        return data_.get() + size_;
     }
 
     template<typename T>
@@ -268,22 +261,22 @@ namespace mystd {
 
     template<typename T>
     const T* Vector<T>::begin() const noexcept {
-        return data_;
+        return data_.get();
     }
 
     template<typename T>
     const T* Vector<T>::end() const noexcept {
-        return data_ + size_;
+        return data_.get() + size_;
     }
 
     template<typename T>
     const T* Vector<T>::cbegin() const noexcept {
-        return data_;
+        return data_.get();
     }
 
     template<typename T>
     const T* Vector<T>::cend() const noexcept {
-        return data_ + size_;
+        return data_.get() + size_;
     }
 
     template<typename T>
