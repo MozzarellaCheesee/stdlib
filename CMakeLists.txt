@@ -1,19 +1,20 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
+project(stdlib)
 
-project(stdlib
-        VERSION 1.0.0
-        DESCRIPTION "My standard library"
-        LANGUAGES CXX
-)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(stdlib INTERFACE
-        stdlib/vector/vector.h
-        stdlib/vector/vector.tpp)
-add_library(stdlib::stdlib ALIAS stdlib)
+add_library(stdlib INTERFACE)
 
 target_include_directories(stdlib
         INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>)
+        ${CMAKE_CURRENT_SOURCE_DIR}      # чтобы работало #include "stdlib/vector.hpp"
+)
 
-target_compile_features(stdlib INTERFACE cxx_std_17)
+target_sources(stdlib
+        INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/vector.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/vector.tpp
+)
