@@ -5,7 +5,7 @@
 #include <memory>
 
 
-namespace mystd {
+namespace stdlib {
     template<typename T>
     class Vector {
     public:
@@ -30,26 +30,26 @@ namespace mystd {
         T&          back();                                  		// Последний элемент вектора
         T*          data();                                 		// Сырой указатель на буфер
 
-        const T&    operator[](std::size_t)   const;          		// Доступ по индексу без проверки границ const
-        const T&    at(std::size_t)           const;         		// Доступ по индексу с проверкой границ const
-        const T&    front()                   const;          		// Первый элемент вектора const
-        const T&    back()                    const;          		// Последний элемент вектора const
-        const T*    data()                    const;          		// Сырой указатель на буфер const
+        const T&    operator[](std::size_t)         const;          // Доступ по индексу без проверки границ const
+        const T&    at(std::size_t)                 const;        	// Доступ по индексу с проверкой границ const
+        const T&    front()                         const;    		// Первый элемент вектора const
+        const T&    back()                          const;          // Последний элемент вектора const
+        const T*    data()                          const;          // Сырой указатель на буфер const
 
         // ─── Размер и ёмкость ───────────────────────────────────────
-        std::size_t size()     const noexcept; 						// Число элементов
-        std::size_t capacity() const noexcept; 						// Выделенная ёмкость
-        bool        empty()    const noexcept; 						// Проверка пустоты size_ == 0
+        std::size_t size()                          const noexcept; // Число элементов
+        std::size_t capacity()                      const noexcept; // Выделенная ёмкость
+        bool        empty()                         const noexcept; // Проверка пустоты size_ == 0
         void        reserve(std::size_t);                   	    // Выделить память без изменения size_
         void        shrink_to_fit();                                // Уменьшить capacity_ до size_
 
         // ─── Модификация ────────────────────────────────────────────
-        void resize(std::size_t, const T& val = T{}); 			    // Изменить size_, добавляя val или удаляя
-        void push_back(const T&);                   			    // Копирующая вставка в конец
-        void push_back(T&&);                        			    // Перемещающая вставка в конец
-        void pop_back();                                			// Удалить последний элемент
-        void swap(Vector&) noexcept;                  			    // Поменять местами содержимое векторов
-        void clear() 	   noexcept;                             	// Вызвать деструкторы, обнулить size_
+        void        resize(std::size_t, const T& val = T{}); 	    // Изменить size_, добавляя val или удаляя
+        void        push_back(const T&);                   		    // Копирующая вставка в конец
+        void        push_back(T&&);                        		    // Перемещающая вставка в конец
+        void        pop_back();                                     // Удалить последний элемент
+        void        swap(Vector&)                   noexcept;       // Поменять местами содержимое векторов
+        void        clear() 	                    noexcept;       // Вызвать деструкторы, обнулить size_
 
         // ─── Итераторы ──────────────────────────────────────────────
         T*                            	begin()	    noexcept;       // Итератор на начало
@@ -68,8 +68,8 @@ namespace mystd {
         std::size_t          size_     = 0;                         // Количество данных в массиве
         std::size_t          capacity_ = 0;                         // Выделенный размер массива под данные
         std::unique_ptr<T[]> data_;                                 // Указатель на массив данных
-        void        reallocate(std::size_t);        	            // Приватная функция увелечения размера массива для данных
-        std::size_t max_size() const noexcept;                      // Максимальное количество элементов которое может быть в векторе
+        void                 reallocate(std::size_t);        	    // Приватная функция увелечения размера массива для данных
+        std::size_t          max_size()             const noexcept; // Максимальное количество элементов которое может быть в векторе
     };
     
     // ─── Операторы сравенения ───────────────────────────────────────

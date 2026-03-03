@@ -6,7 +6,7 @@
 #include <utility>
 #include <limits>
 
-namespace mystd {
+namespace stdlib {
 
     template<typename T>
     Vector<T>::Vector() noexcept : size_(0), capacity_(0) {}
