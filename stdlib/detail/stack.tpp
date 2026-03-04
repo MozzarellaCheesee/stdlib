@@ -1,12 +1,12 @@
 #pragma once
-#include "stack.h"
-#include "vector.h"
+#include "../stack.h"
+#include "../vector.h"
 #include <iostream>
 
 namespace stdlib {
 
     template<typename T>
-    Stack<T>::Stack(const int initial_capacity) {
+    Stack<T>::Stack(const size_t initial_capacity) {
         if (initial_capacity < 8) throw std::invalid_argument("Initial capacity must be greater than 8.");
         Vector<T> vec;
         data_ = vec;

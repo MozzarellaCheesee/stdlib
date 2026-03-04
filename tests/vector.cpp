@@ -3,12 +3,13 @@
 #include <iostream>
 
 int main() {
-    mystd::Vector<int> vec{1, 3, 5, 3};
-    for (auto el : vec) {
-        std::cout << el << " ";
+    stdlib::Vector<int> vec;
+    for (std::size_t i = 3; i < 65537; i++) {
+        vec.push_back(i);
     }
+    std::cout << vec.capacity() << " " << vec.size() << "\n";
 
-    mystd::Stack<int> stack;
+    stdlib::Stack<int> stack;
     stack.push(4);
     stack.push(8);
     stack.push(76);

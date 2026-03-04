@@ -1,5 +1,6 @@
 #pragma once
-#include "vector.h"
+#include "../vector.h"
+#include <cmath>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -9,7 +10,7 @@
 namespace stdlib {
 
     template<typename T>
-    Vector<T>::Vector() noexcept : size_(0), capacity_(0) {}
+    Vector<T>::Vector() noexcept : size_(0), capacity_(0), data_(nullptr) {}
 
     // ─── Конструкторы ───────────────────────────────────────────
     template<typename T>
@@ -20,7 +21,7 @@ namespace stdlib {
     }
 
     template<typename T>
-    template<typename InputIt>
+    template<std::input_iterator InputIt>
     Vector<T>::Vector(InputIt first, InputIt last) {
         size_ = static_cast<size_t>(std::distance(first, last));
         if (size_ == 0) return;
@@ -87,76 +88,76 @@ namespace stdlib {
 
     // ─── Доступ к элементам ─────────────────────────────────────
     template<typename T>
-    T& Vector<T>::operator[](std::size_t i) {
+    inline T& Vector<T>::operator[](std::size_t i) {
         return data_[i];
     }
 
     template<typename T>
-    T& Vector<T>::at(std::size_t i) {
+    inline T& Vector<T>::at(std::size_t i) {
         if (empty()) throw std::out_of_range("Vector::back: empty vector");
         if (i >= size_) throw std::out_of_range("Vector::at: index " + std::to_string(i) + " >= size " + std::to_string(size_));
         return data_[i];
     }
 
     template<typename T>
-    T& Vector<T>::front() {
+    inline T& Vector<T>::front() {
         if (empty()) throw std::out_of_range("Vector::back: empty vector");
         return data_[0];
     }
 
     template<typename T>
-    T& Vector<T>::back() {
+    inline T& Vector<T>::back() {
         if (empty()) throw std::out_of_range("Vector::back: empty vector");
         return data_[size_ - 1];
     }
 
     template<typename T>
-    T* Vector<T>::data() {
+    inline T* Vector<T>::data() {
         return data_.get();
     }
 
     template<typename T>
-    const T& Vector<T>::operator[](std::size_t i) const {
+    inline const T& Vector<T>::operator[](std::size_t i) const {
         return data_[i];
     }
 
     template<typename T>
-    const T& Vector<T>::at(std::size_t i) const {
+    inline const T& Vector<T>::at(std::size_t i) const {
         if (empty()) throw std::out_of_range("Vector::back: empty vector");
         if (i >= size_) throw std::out_of_range("Vector::at: index " + std::to_string(i) + " >= size " + std::to_string(size_));
         return data_[i];
     }
 
     template<typename T>
-    const T& Vector<T>::front() const {
+    inline const T& Vector<T>::front() const {
         if (empty()) throw std::out_of_range("Vector::back: empty vector");
         return data_[0];
     }
 
     template<typename T>
-    const T& Vector<T>::back() const {
+    inline const T& Vector<T>::back() const {
         if (empty()) throw std::out_of_range("Vector::back: empty vector");
         return data_[size_ - 1];
     }
 
     template<typename T>
-    const T* Vector<T>::data() const {
+    inline const T* Vector<T>::data() const {
         return data_.get();
     }
 
     // ─── Размер и ёмкость ───────────────────────────────────────
     template<typename T>
-    std::size_t Vector<T>::size() const noexcept {
+    inline std::size_t Vector<T>::size() const noexcept {
         return size_;
     }
 
     template<typename T>
-    std::size_t Vector<T>::capacity() const noexcept {
+    inline std::size_t Vector<T>::capacity() const noexcept {
         return capacity_;
     }
 
     template<typename T>
-    bool Vector<T>::empty() const noexcept {
+    inline bool Vector<T>::empty() const noexcept {
         return size_ == 0u;
     }
 
@@ -167,7 +168,7 @@ namespace stdlib {
     }
 
     template<typename T>
-    void Vector<T>::shrink_to_fit() {
+    inline void Vector<T>::shrink_to_fit() {
         if (capacity_ == size_) return;
 
         Vector tmp(*this);
@@ -200,18 +201,18 @@ namespace stdlib {
     template<typename T>
     void Vector<T>::push_back(const T& value) {
         if (size_ == capacity_) {
-            size_t new_cap = capacity_ == 0 ? 1 : capacity_ * 3 / 2;
+            std::size_t new_cap = new_capacity();
             reallocate(new_cap);
         }
-        new (data_.get() + size_) T(value);  // Placement new
+        new (data_.get() + size_) T(value);
         ++size_;
     }
 
     template<typename T>
     void Vector<T>::push_back(T&& value) {
         if (size_ == capacity_) {
-            std::size_t new_capacity = capacity_ == 0 ? 1 : static_cast<std::size_t>(capacity_ * 1.5);
-            reallocate(new_capacity);
+            std::size_t new_cap = new_capacity();
+            reallocate(new_cap);
         }
         
         new (&data_[size_]) T(std::forward<T>(value));
@@ -219,20 +220,20 @@ namespace stdlib {
     }
 
     template<typename T>
-    void Vector<T>::pop_back()  {
+    inline void Vector<T>::pop_back()  {
         if (empty()) return;
         data_[--size_].~T();
     }
 
     template<typename T>
-    void Vector<T>::swap(Vector& other) noexcept {
+    inline void Vector<T>::swap(Vector& other) noexcept {
         std::swap(data_, other.data_);
         std::swap(size_, other.size_);
         std::swap(capacity_, other.capacity_);
     }
 
     template<typename T>
-    void Vector<T>::clear() noexcept {
+    inline void Vector<T>::clear() noexcept {
         for (std::size_t i = size_; i > 0; ) data_[--i].~T();
         size_ = 0;
     }
@@ -240,52 +241,52 @@ namespace stdlib {
     // ─── Итераторы ──────────────────────────────────────────────
 
     template<typename T>
-    T* Vector<T>::begin() noexcept {
+    inline T* Vector<T>::begin() noexcept {
         return data_.get();
     }
 
     template<typename T>
-    T* Vector<T>::end() noexcept {
+    inline T* Vector<T>::end() noexcept {
         return data_.get() + size_;
     }
 
     template<typename T>
-    std::reverse_iterator<T*> Vector<T>::rbegin() noexcept {
+    inline std::reverse_iterator<T*> Vector<T>::rbegin() noexcept {
         return std::reverse_iterator<T*>(end());
     }
 
     template<typename T>
-    std::reverse_iterator<T*> Vector<T>::rend() noexcept {
+    inline std::reverse_iterator<T*> Vector<T>::rend() noexcept {
         return std::reverse_iterator<T*>(begin()); 
     }
 
     template<typename T>
-    const T* Vector<T>::begin() const noexcept {
+    inline const T* Vector<T>::begin() const noexcept {
         return data_.get();
     }
 
     template<typename T>
-    const T* Vector<T>::end() const noexcept {
+    inline const T* Vector<T>::end() const noexcept {
         return data_.get() + size_;
     }
 
     template<typename T>
-    const T* Vector<T>::cbegin() const noexcept {
+    inline const T* Vector<T>::cbegin() const noexcept {
         return data_.get();
     }
 
     template<typename T>
-    const T* Vector<T>::cend() const noexcept {
+    inline const T* Vector<T>::cend() const noexcept {
         return data_.get() + size_;
     }
 
     template<typename T>
-    std::reverse_iterator<const T*> Vector<T>::rbegin() const noexcept {
+    inline std::reverse_iterator<const T*> Vector<T>::rbegin() const noexcept {
         return std::reverse_iterator<const T*>(end());
     }
 
     template<typename T>
-    std::reverse_iterator<const T*> Vector<T>::rend() const noexcept {
+    inline std::reverse_iterator<const T*> Vector<T>::rend() const noexcept {
         return std::reverse_iterator<const T*>(begin());
     }
 
@@ -293,7 +294,7 @@ namespace stdlib {
 
     template<typename T>
     void Vector<T>::reallocate(std::size_t new_capacity) {
-        if (new_capacity > max_size()) throw std::length_error("Vector::reserve: new_cap > max_size()");
+        if (new_capacity > max_size()) throw std::length_error("Vector::reserve: new_cap > max_size()"); // Оптимизировать реалокацию 
         std::unique_ptr<T[]> temp(new T[new_capacity]);
         std::move(data_.get(), data_.get() + size_, temp.get());
         data_ = std::move(temp);
@@ -301,8 +302,34 @@ namespace stdlib {
     }
 
     template<typename T>
-    std::size_t Vector<T>::max_size() const noexcept {
+    inline std::size_t Vector<T>::max_size() const noexcept {
         return std::numeric_limits<std::size_t>::max() / sizeof(T);
+    }
+
+    template<typename T>
+    inline std::size_t Vector<T>::new_capacity() const noexcept {
+        if (capacity_ == 0) return 1;
+        if (capacity_ < 256) return capacity_ + static_cast<std::size_t>(capacity_ / 2);
+        if (capacity_ < 4096) return new_capacity_ln(); 
+        if (capacity_ < 65536) return new_capacity_log2();
+        return new_capacity_sqrt();
+    }
+
+    template<typename T>
+    inline std::size_t Vector<T>::new_capacity_sqrt() const noexcept {
+        return capacity_ + static_cast<size_t>(std::sqrt(capacity_)); // capacity_ + sqrt(capacity_)
+    }
+
+    template<typename T>
+    inline std::size_t Vector<T>::new_capacity_ln() const noexcept {
+        size_t delta = std::max<size_t>(1, capacity_ / (size_t)std::log(capacity_ + 1)); // max(1, (capacity_ / ln(capacity_+1)))
+        return capacity_ + delta;
+    }
+
+    template<typename T>
+    inline std::size_t Vector<T>::new_capacity_log2() const noexcept {
+        size_t log2_cap = 64 - __builtin_clzll(capacity_); // Битовая операция считает количество ведущих (старших) нулевых бит в числе находим log2
+        return capacity_ + std::max<std::size_t>(1, capacity_ / log2_cap); // capacity_ + (capacity_ / (1 + log2(capacity_)))
     }
 
     // ─── Свободная функция swap ─────────────────────────────────

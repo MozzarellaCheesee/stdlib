@@ -13,7 +13,11 @@ target_include_directories(stdlib INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 target_sources(stdlib
         INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/vector.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/vector.tpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/stack.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/deque.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/detail/vector.tpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/detail/stack.tpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/detail/deque.tpp
 )
 
 add_executable(vector_test ./tests/vector.cpp)

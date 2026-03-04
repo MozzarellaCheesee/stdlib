@@ -12,7 +12,7 @@ namespace stdlib {
         // ─── Конструкторы ───────────────────────────────────────────
         Vector() noexcept;                                          // Конструктор по умолчанию
         Vector(std::initializer_list<T>);                  	        // Конструктор из списка инициализации {1,2,3}
-        template<typename InputIt>                              	// Шаблонизированный
+        template<std::input_iterator InputIt>                              	// Шаблонизированный
         Vector(InputIt, InputIt);                               	// Конструктор из диапазона итераторов
         explicit    Vector(std::size_t, const T& val = T{});  	    // Конструктор из n элементов со значением val
 
@@ -65,11 +65,15 @@ namespace stdlib {
         std::reverse_iterator<const T*> rend()      const noexcept; // обратный итератор на начало const
 
     private:
-        std::size_t          size_     = 0;                         // Количество данных в массиве
-        std::size_t          capacity_ = 0;                         // Выделенный размер массива под данные
+        std::size_t          size_;                                 // Количество данных в массиве
+        std::size_t          capacity_;                             // Выделенный размер массива под данные
         std::unique_ptr<T[]> data_;                                 // Указатель на массив данных
         void                 reallocate(std::size_t);        	    // Приватная функция увелечения размера массива для данных
         std::size_t          max_size()             const noexcept; // Максимальное количество элементов которое может быть в векторе
+        std::size_t          new_capacity()         const noexcept;
+        std::size_t          new_capacity_sqrt()    const noexcept;
+        std::size_t          new_capacity_ln()      const noexcept;
+        std::size_t          new_capacity_log2()    const noexcept;
     };
     
     // ─── Операторы сравенения ───────────────────────────────────────
@@ -97,4 +101,4 @@ namespace stdlib {
     void swap(Vector<T>& a, Vector<T>& b) noexcept;           // для совместимости с std::swap
 }
 
-#include "../stdlib/vector.tpp"
+#include "../stdlib/detail/vector.tpp"

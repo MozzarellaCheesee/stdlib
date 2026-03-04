@@ -9,7 +9,7 @@ namespace stdlib {
     private:
         Vector<T> data_;                                // Вектор данных стека
     public:
-        explicit    Stack(int initial_capacity = 16);   // Стандартный конструктор 
+        explicit    Stack(const std::size_t initial_capacity = 16);   // Стандартный конструктор 
         ~Stack() = default;                             // Деструктор
         Stack(const Stack&)                 noexcept;   // Конструктор копирования
         Stack(Stack&&)                      noexcept;   // Конструктор перемещения
@@ -26,4 +26,4 @@ namespace stdlib {
 
 }
 
-#include "../stdlib/stack.tpp"
+#include "../stdlib/detail/stack.tpp"
