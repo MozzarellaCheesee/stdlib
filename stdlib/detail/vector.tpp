@@ -31,7 +31,7 @@ namespace stdlib {
     }
 
     template<typename T>
-    Vector<T>::Vector(size_t n, const T& val) 
+    Vector<T>::Vector(size_t n, const T& val)
         : size_(n), capacity_(n) {
         data_ = std::make_unique<T[]>(capacity_);
         std::fill(data_.get(), data_.get() + size_, val);
@@ -66,10 +66,11 @@ namespace stdlib {
 
         other.size_ = 0;
         other.capacity_ = 0;
+        return *this;
     }
 
     template<typename T>
-    Vector<T>& Vector<T>::operator=(const Vector& other) noexcept {
+    Vector<T>& Vector<T>::operator=(const Vector& other) {
         if (this == &other) return *this;
 
         if (other.size_ <= capacity_) {
@@ -83,6 +84,7 @@ namespace stdlib {
 
         data_ = std::move(temp);
         size_ = other.size_;
+        capacity_ = other.size_;
         return *this;
     }
 
@@ -170,10 +172,15 @@ namespace stdlib {
     template<typename T>
     inline void Vector<T>::shrink_to_fit() {
         if (capacity_ == size_) return;
-
-        Vector tmp(*this);
-        tmp.capacity_ = tmp.size_;
-        swap(tmp);
+        if (size_ == 0) {
+            data_.reset();
+            capacity_ = 0;
+            return;
+        }
+        std::unique_ptr<T[]> temp = std::make_unique<T[]>(size_);
+        std::move(data_.get(), data_.get() + size_, temp.get());
+        data_ = std::move(temp);
+        capacity_ = size_;
     }
 
     // ─── Модификация ────────────────────────────────────────────
@@ -181,19 +188,14 @@ namespace stdlib {
     template<typename T>
     void Vector<T>::resize(std::size_t new_size, const T& val) {
         if (new_size < size_) {
-            for (std::size_t i = new_size; i < size_; ++i) {
-                data_[i].~T();
-            }
             size_ = new_size;
             return;
         }
 
         if (new_size > size_) {
             if (new_size > capacity_) reallocate(new_size);
-
-            for (std::size_t i = new_size; i < size_; ++i) {
-                new (&data_[i]) T(val);
-            }
+            for (std::size_t i = size_; i < new_size; ++i)
+                data_[i] = val;
             size_ = new_size;
         }
     }
@@ -204,7 +206,7 @@ namespace stdlib {
             std::size_t new_cap = new_capacity();
             reallocate(new_cap);
         }
-        new (data_.get() + size_) T(value);
+        data_[size_] = value;
         ++size_;
     }
 
@@ -215,14 +217,14 @@ namespace stdlib {
             reallocate(new_cap);
         }
         
-        new (&data_[size_]) T(std::forward<T>(value));
+        data_[size_] = std::move(value);
         ++size_;
     }
 
     template<typename T>
-    inline void Vector<T>::pop_back()  {
+    void Vector<T>::pop_back() {
         if (empty()) return;
-        data_[--size_].~T();
+        --size_;
     }
 
     template<typename T>
@@ -233,8 +235,7 @@ namespace stdlib {
     }
 
     template<typename T>
-    inline void Vector<T>::clear() noexcept {
-        for (std::size_t i = size_; i > 0; ) data_[--i].~T();
+    void Vector<T>::clear() noexcept {
         size_ = 0;
     }
 
@@ -293,12 +294,12 @@ namespace stdlib {
     // ─── Приватные функции ──────────────────────────────────────
 
     template<typename T>
-    void Vector<T>::reallocate(std::size_t new_capacity) {
-        if (new_capacity > max_size()) throw std::length_error("Vector::reserve: new_cap > max_size()"); // Оптимизировать реалокацию 
-        std::unique_ptr<T[]> temp(new T[new_capacity]);
+    void Vector<T>::reallocate(std::size_t new_cap ) {
+        if (new_cap > max_size()) throw std::length_error("Vector::reserve: new_cap > max_size()"); // Оптимизировать реалокацию 
+        std::unique_ptr<T[]> temp(new T[new_cap]);
         std::move(data_.get(), data_.get() + size_, temp.get());
         data_ = std::move(temp);
-        capacity_ = new_capacity;
+        capacity_ = new_cap;
     }
 
     template<typename T>
@@ -309,7 +310,7 @@ namespace stdlib {
     template<typename T>
     inline std::size_t Vector<T>::new_capacity() const noexcept {
         if (capacity_ == 0) return 1;
-        if (capacity_ < 256) return capacity_ + static_cast<std::size_t>(capacity_ / 2);
+        if (capacity_ < 256) return capacity_ == 1 ? 2 : (capacity_ + static_cast<std::size_t>(capacity_ / 2));
         if (capacity_ < 4096) return new_capacity_ln(); 
         if (capacity_ < 65536) return new_capacity_log2();
         return new_capacity_sqrt();
@@ -336,10 +337,7 @@ namespace stdlib {
 
     template<typename T>
     void swap(Vector<T>& a, Vector<T>& b) noexcept {
-        using std::swap;
-        swap(a.data_, b.data_);
-        swap(a.size_, b.size_);
-        swap(a.capacity_, b.capacity_);
+        a.swap(b);
     }
 
     template<typename T>
@@ -365,7 +363,7 @@ namespace stdlib {
 
     template<typename T>
     bool operator<=(const Vector<T>& a, const Vector<T>& b) {
-        return !(b > a);
+        return !(b < a);
     }
 
     template<typename T>

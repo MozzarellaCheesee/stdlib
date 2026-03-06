@@ -5,37 +5,28 @@
 
 namespace stdlib {
 
-    template<typename T>
-    Stack<T>::Stack(const size_t initial_capacity) {
-        if (initial_capacity < 8) throw std::invalid_argument("Initial capacity must be greater than 8.");
-        Vector<T> vec;
-        data_ = vec;
+    template <typename T>
+    Stack<T>::Stack(const size_t initial_capacity) : data_() {
+        data_.reserve(initial_capacity);
     }
 
     template <typename T>
-    Stack<T>::Stack(const Stack& copy) noexcept{
-        data_ = copy.data_;
-    }
+    Stack<T>::Stack(const Stack& copy) : data_(copy.data_) {}
 
     template <typename T>
-    Stack<T>& Stack<T>::operator=(const Stack& copy) noexcept {
+    Stack<T>& Stack<T>::operator=(const Stack& copy) {
         if (this == &copy) return *this;
-        Vector<T> new_data(copy.data_);
-        data_ = new_data;
+        data_ = copy.data_;
         return *this;
     }
 
     template <typename T>
-    Stack<T>::Stack(Stack&& moved) noexcept {
-        data_ = moved.data_;
-        moved.data_.~T();
-    }
+    Stack<T>::Stack(Stack&& moved) noexcept : data_(std::move(moved.data_)) {}
 
     template <typename T>
     Stack<T>& Stack<T>::operator=(Stack&& moved) noexcept {
-        if (this == moved) return *this;
-        data_ = moved.data_;
-        moved.data_.~T();
+        if (this == &moved) return *this;
+        data_ = std::move(moved.data_);
         return *this;
     }
 
@@ -46,51 +37,47 @@ namespace stdlib {
 
     template <typename T>
     T Stack<T>::pop() {
+        if (empty()) throw std::runtime_error("stack.pop(): empty stack");
+        T value = std::move(data_[data_.size() - 1]);
         data_.pop_back();
+        return value;
     }
 
     template <typename T>
     const T& Stack<T>::peek() const {
+        if (empty()) throw std::runtime_error("stack.peek(): empty stack");
         return data_[data_.size() - 1];
     }
 
     template <typename T>
-    bool Stack<T>::isEmpty() const {
+    bool Stack<T>::empty() const {
         return data_.size() == 0;
     }
 
     template <typename T>
     void Stack<T>::print() {
-        if (isEmpty()) {
+        if (empty()) {
             std::cout << "Stack is empty\n";
             return;
         }
-        size_t i = data_.size()-1;
-        for (auto el : data_) {
-            std::cout << i << ": " << el << "\n";
-            --i;
+        for (size_t i = data_.size(); i-- > 0;) {
+            std::cout << i << ": " << data_[i] << "\n";
         }
     }
 
     template <typename T>
-    Vector<T> Stack<T>::find(const T& value) const {
-        if (isEmpty()) return {nullptr, 0};
-
-        size_t count = 0;
-        for (auto el : data_) {
-            if (el == value) count++;
-        }
-
-        Vector<T> result(count, 0);
-
-        for (size_t i = 0, x = 0; i < data_.size(); i++) {
-            if(data_[i] == value) {
-                result[x] = i;
-                x++;
-            }
-        }   
+    size_t Stack<T>::len() const {
+        return data_.size();
     }
 
+    template <typename T>
+    Vector<std::size_t> Stack<T>::find(const T& value) const {
+        Vector<std::size_t> result;
+        for (size_t i = 0; i < data_.size(); i++) {
+            if (data_[i] == value) result.push_back(i);
+        }
+        return result;
+    }
 }
 
 
