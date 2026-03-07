@@ -3,7 +3,7 @@
 #include <initializer_list>
 #include <iterator>
 
-namespace mtdlib {
+namespace stdlib {
     template<typename T>
     class List {
     private:

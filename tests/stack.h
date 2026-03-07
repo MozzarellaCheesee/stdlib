@@ -1,19 +1,17 @@
-#include <cassert>
-#include <iostream>
-
-#include "./tester.cpp"
+#pragma once
+#include "./tester.h"
 #include "../stdlib/stack.h"
 
 using stdlib::Stack;
 
 
-void test_default_constructor() {
+inline void test_default_constructor_stack() {
     Stack<int> s;
     ASSERT(s.empty());
     ASSERT(s.len() == 0);
 }
 
-void test_push_pop_int() {
+inline void test_push_pop_int_stack() {
     Stack<int> s;
     s.push(1);
     s.push(2);
@@ -28,7 +26,7 @@ void test_push_pop_int() {
     ASSERT(s.empty());
 }
 
-void test_push_pop_string() {
+inline void test_push_pop_string_stack_stack() {
     Stack<std::string> s;
     s.push("first");
     s.push("second");
@@ -38,17 +36,17 @@ void test_push_pop_string() {
     ASSERT(s.pop() == "first");
 }
 
-void test_empty_pop() {
+inline void test_empty_pop_stack() {
     Stack<int> s;
     ASSERT_THROWS(s.pop()); // должен бросить исключение
 }
 
-void test_empty_peek() {
+inline void test_empty_peek_stack() {
     Stack<int> s;
     ASSERT_THROWS(s.peek()); // должен бросить исключение
 }
 
-void test_move_constructor() {
+inline void test_move_constructor_stack() {
     Stack<int> a;
     a.push(1); a.push(2);
     Stack<int> b(std::move(a));
@@ -57,7 +55,7 @@ void test_move_constructor() {
     ASSERT(a.empty());
 }
 
-void test_move_assignment() {
+inline void test_move_assignment_stack() {
     Stack<int> a;
     a.push(1); a.push(2);
     Stack<int> b;
@@ -69,7 +67,7 @@ void test_move_assignment() {
     ASSERT(b.len() == 2); // b не пустая
 }
 
-void test_copy_constructor() {
+inline void test_copy_constructor_stack() {
     Stack<int> a;
     a.push(1); a.push(2);
     Stack<int> b(a);
@@ -79,7 +77,7 @@ void test_copy_constructor() {
     ASSERT(a.len() == 2); // глубокая копия
 }
 
-void test_copy_assignment() {
+inline void test_copy_assignment() {
     Stack<int> a;
     a.push(1); a.push(2);
     Stack<int> b;
@@ -91,20 +89,20 @@ void test_copy_assignment() {
     ASSERT(a.len() == 2); // глубокая копия
 }
 
-void test_find_empty() {
+inline void test_find_empty_stack() {
     Stack<int> s;
     auto indices = s.find(42);
     ASSERT(indices.empty());
 }
 
-void test_find_not_found() {
+inline void test_find_not_found_stack() {
     Stack<int> s;
     s.push(1); s.push(3); s.push(5);
     auto indices = s.find(2);
     ASSERT(indices.empty());
 }
 
-void test_find_one() {
+inline void test_find_one_stack() {
     Stack<int> s;
     s.push(1); s.push(2); s.push(3); s.push(2);
     auto indices = s.find(2);
@@ -113,7 +111,7 @@ void test_find_one() {
     ASSERT(indices[1] == 3);
 }
 
-void test_find_all() {
+inline void test_find_all_stack() {
     Stack<int> s;
     s.push(1); s.push(2); s.push(2); s.push(3); s.push(2);
     auto indices = s.find(2);
@@ -123,7 +121,7 @@ void test_find_all() {
     ASSERT(indices[2] == 4);
 }
 
-void test_initial_capacity() {
+inline void test_initial_capacity_stack() {
     Stack<int> s(32);
     ASSERT(s.len() == 0);
     ASSERT(s.empty());
@@ -132,7 +130,7 @@ void test_initial_capacity() {
     ASSERT(s.len() == 40);
 }
 
-void test_len_after_operations() {
+inline void test_len_after_operations_stack() {
     Stack<int> s;
     ASSERT(s.len() == 0);
     s.push(1);
@@ -143,35 +141,25 @@ void test_len_after_operations() {
     ASSERT(s.len() == 2);
 }
 
-int main() {
+inline int stack_test() {
     TestRunner tr;
 
     std::cout << "____________________ STACK TESTS ____________________\n";
-
-    std::cout << "[ Basic ]\n";
-    tr.run("default constructor", test_default_constructor);
-    tr.run("push/pop int",        test_push_pop_int);
-    tr.run("push/pop string",     test_push_pop_string);
-
-    std::cout << "\n[ Empty cases ]\n";
-    tr.run("empty pop",           test_empty_pop);
-    tr.run("empty peek",          test_empty_peek);
-
-    std::cout << "\n[ Rule of Five ]\n";
-    tr.run("move constructor",    test_move_constructor);
-    tr.run("move assignment",     test_move_assignment);
-    tr.run("copy constructor",    test_copy_constructor);
-    tr.run("copy assignment",     test_copy_assignment);
-
-    std::cout << "\n[ Find ]\n";
-    tr.run("find empty",          test_find_empty);
-    tr.run("find not found",      test_find_not_found);
-    tr.run("find one",            test_find_one);
-    tr.run("find all",            test_find_all);
-
-    std::cout << "\n[ Other ]\n";
-    tr.run("initial capacity",    test_initial_capacity);
-    tr.run("len after ops",       test_len_after_operations);
+    tr.run("default constructor", test_default_constructor_stack);
+    tr.run("push/pop int",        test_push_pop_int_stack);
+    tr.run("push/pop string",     test_push_pop_int_stack);
+    tr.run("empty pop",           test_empty_pop_stack);
+    tr.run("empty peek",          test_empty_peek_stack);
+    tr.run("move constructor",    test_move_constructor_stack);
+    tr.run("move assignment",     test_move_assignment_stack);
+    tr.run("copy constructor",    test_copy_constructor_stack);
+    tr.run("copy assignment",     test_move_assignment_stack);
+    tr.run("find empty",          test_find_empty_stack);
+    tr.run("find not found",      test_find_not_found_stack);
+    tr.run("find one",            test_find_one_stack);
+    tr.run("find all",            test_find_all_stack);
+    tr.run("initial capacity",    test_initial_capacity_stack);
+    tr.run("len after ops",       test_len_after_operations_stack);
 
     tr.summary();
     return tr.exit_code();

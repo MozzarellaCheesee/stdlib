@@ -1,8 +1,9 @@
 #pragma once
 #include "../list.h"
 #include <initializer_list>
+#include <stdexcept>
 
-namespace mtdlib {
+namespace stdlib {
 
     template<typename T>
     template<typename... Args>
@@ -26,7 +27,7 @@ namespace mtdlib {
 
     template<typename T>
     template<std::input_iterator InputIt>
-    List<T>::List(InputIt first, InputIt last) {
+    List<T>::List(InputIt first, InputIt last) : size_(0), sentinel_{&sentinel_, &sentinel_} {
         for (; first != last; ++first)
             push_back(*first);
     }
@@ -78,6 +79,7 @@ namespace mtdlib {
             other.sentinel_.prev_ = &other.sentinel_;
             other.size_ = 0;
         }
+        return *this;
     }
 
     template<typename T>
@@ -157,6 +159,65 @@ namespace mtdlib {
                 ++it;
         }
     }
+
+    //─── Доступ к элементам ──────────────────────────────────────
+
+    template<typename T>
+    T& List<T>::operator[](std::size_t index) {
+        Iterator it = begin();
+        std::advance(it, index);
+        return *it;
+    }
+
+    template<typename T>
+    const T& List<T>::operator[](std::size_t index) const {
+        ConstIterator it = begin();
+        std::advance(it, index);
+        return *it;
+    }
+
+    template<typename T>
+    T& List<T>::at(std::size_t index) {
+        if (index >= size_)
+            throw std::out_of_range("List::at: index out of range");
+        Iterator it = begin();
+        std::advance(it, index);
+        return *it;
+    }
+
+    template<typename T>
+    const T& List<T>::at(std::size_t index) const {
+        if (index >= size_)
+            throw std::out_of_range("List::at: index out of range");
+        ConstIterator it = begin();
+        std::advance(it, index);
+        return *it;
+    }
+
+    template<typename T>
+    T& List<T>::front() {
+        if (empty()) throw std::out_of_range("List::front: empty list");
+        return *begin();
+    }
+
+    template<typename T>
+    T& List<T>::back() {
+        if (empty()) throw std::out_of_range("List::back: empty list");
+        return *(--end());
+    }
+
+    template<typename T>
+    const T& List<T>::front() const {
+        if (empty()) throw std::out_of_range("List::front: empty list");
+        return *cbegin();
+    }
+
+    template<typename T>
+    const T& List<T>::back() const {
+        if (empty()) throw std::out_of_range("List::back: empty list");
+        return *(--cend());
+    }
+
 
     // ─── Утилиты ────────────────────────────────────────────────
 

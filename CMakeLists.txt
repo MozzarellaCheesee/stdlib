@@ -20,7 +20,5 @@ target_sources(stdlib
         ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/detail/List.tpp
 )
 
-add_executable(stack_test ./tests/tester.cpp ./tests/stack.cpp)
-target_link_libraries(stack_test PRIVATE stdlib)
-# add_executable(vector_test ./tests/tester.cpp ./tests/vector.cpp)
-# target_link_libraries(vector_test PRIVATE stdlib)
+add_executable(tests ./tests/entrypoint.cpp)
+target_link_libraries(tests PRIVATE stdlib)
